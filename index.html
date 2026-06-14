@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Coach"/>
+<meta name="theme-color" content="#0e1116"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="apple-touch-icon-180.png"/>
+<title>My Fitness Coach</title>
+<style>
+  :root{
+    --bg:#0e1116; --card:#171c24; --card2:#1f2630; --line:#2a323d;
+    --text:#e8edf3; --muted:#93a0b0; --accent:#3ea6ff; --accent2:#46d39a;
+    --warn:#ffb347; --bad:#ff6b6b; --good:#46d39a;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding-bottom:84px; line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:14px}
+  header.top{
+    position:sticky;top:0;z-index:30;background:linear-gradient(180deg,#0e1116 70%,rgba(14,17,22,0));
+    padding:12px 14px 8px;max-width:560px;margin:0 auto;
+  }
+  .h-title{font-size:20px;font-weight:800;letter-spacing:.2px;display:flex;align-items:center;gap:8px}
+  .h-sub{color:var(--muted);font-size:12px;margin-top:2px}
+  h2{font-size:15px;margin:18px 2px 8px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+  .row{display:flex;gap:10px}
+  .between{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .muted{color:var(--muted)} .small{font-size:12px} .tiny{font-size:11px}
+  .pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;background:var(--card2);color:var(--muted);border:1px solid var(--line)}
+  .pill.acc{background:rgba(62,166,255,.15);color:var(--accent);border-color:rgba(62,166,255,.35)}
+  .pill.grn{background:rgba(70,211,154,.15);color:var(--accent2);border-color:rgba(70,211,154,.35)}
+  .pill.wrn{background:rgba(255,179,71,.15);color:var(--warn);border-color:rgba(255,179,71,.35)}
+
+  .modetoggle{display:flex;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px;margin:6px 0 14px}
+  .modetoggle button{flex:1;border:0;background:transparent;color:var(--muted);font-weight:700;font-size:14px;padding:10px;border-radius:999px;transition:.15s}
+  .modetoggle button.on{background:var(--accent);color:#06121f}
+  .modetoggle button.on.home{background:var(--accent2);color:#06201a}
+
+  .sess{display:flex;align-items:center;gap:12px;cursor:pointer}
+  .sess .emoji{font-size:26px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:var(--card2);border-radius:12px;flex:0 0 auto}
+  .sess .nm{font-weight:700;font-size:16px}
+  .chev{margin-left:auto;color:var(--muted);font-size:22px}
+
+  button.btn{border:0;border-radius:12px;padding:13px 16px;font-weight:800;font-size:15px;cursor:pointer;width:100%}
+  .btn.primary{background:var(--accent);color:#06121f}
+  .btn.green{background:var(--accent2);color:#06201a}
+  .btn.ghost{background:var(--card2);color:var(--text);border:1px solid var(--line)}
+  .btn.sm{width:auto;padding:9px 13px;font-size:13px;border-radius:10px}
+
+  /* exercise card */
+  .ex{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
+  .ex-head{display:flex;gap:12px;padding:12px;align-items:center}
+  .exsvg{width:84px;height:90px;flex:0 0 auto;background:radial-gradient(circle at 50% 40%,#222b36,#161b22);border-radius:12px;padding:2px}
+  .exsvg polyline{stroke:var(--accent2);stroke-width:6;stroke-linecap:round;stroke-linejoin:round;fill:none}
+  .exsvg circle.head{fill:var(--accent2);stroke:none}
+  .exsvg .grd{stroke:#3a4654;stroke-width:3;stroke-linecap:round}
+  .ex-meta{flex:1;min-width:0}
+  .ex-name{font-weight:800;font-size:16px}
+  .ex-presc{color:var(--accent);font-size:13px;font-weight:700;margin-top:2px}
+  .ex-sub{color:var(--muted);font-size:12px;margin-top:2px}
+  .ex-body{padding:0 12px 12px}
+  details{margin-top:6px}
+  details summary{cursor:pointer;color:var(--muted);font-size:13px;font-weight:700;list-style:none;padding:6px 0}
+  details summary::-webkit-details-marker{display:none}
+  details summary:before{content:"▸ ";color:var(--accent)}
+  details[open] summary:before{content:"▾ "}
+  .cues{margin:4px 0 0;padding-left:18px}
+  .cues li{margin:3px 0;font-size:13px;color:#cdd6e0}
+  .logrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .fld{flex:1;min-width:84px}
+  .fld label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px;font-weight:700}
+  .fld input,.fld select{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:11px;font-size:16px}
+  .vidbtn{display:inline-flex;align-items:center;gap:6px;background:rgba(255,107,107,.12);color:#ff8585;border:1px solid rgba(255,107,107,.3);border-radius:10px;padding:8px 11px;font-size:12px;font-weight:700;text-decoration:none;margin-top:8px}
+
+  /* nav */
+  nav.bottom{position:fixed;bottom:0;left:0;right:0;background:rgba(16,20,27,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;z-index:40;padding-bottom:env(safe-area-inset-bottom)}
+  nav.bottom button{flex:1;background:transparent;border:0;color:var(--muted);font-size:10px;font-weight:700;padding:9px 0 8px;display:flex;flex-direction:column;align-items:center;gap:3px}
+  nav.bottom button .ic{font-size:20px}
+  nav.bottom button.on{color:var(--accent)}
+
+  /* readiness ring */
+  .ring{display:flex;align-items:center;gap:14px}
+  .ringsvg{width:74px;height:74px;flex:0 0 auto}
+  .ring .num{font-size:24px;font-weight:800}
+  .barwrap{background:var(--card2);border-radius:999px;height:10px;overflow:hidden;margin-top:6px}
+  .bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:999px}
+
+  .coachmsg{background:linear-gradient(135deg,rgba(62,166,255,.16),rgba(70,211,154,.12));border:1px solid rgba(70,211,154,.3);border-radius:var(--radius);padding:14px;font-size:14px}
+  .coachmsg b{color:var(--accent2)}
+
+  /* modal */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;display:none;align-items:flex-end;justify-content:center}
+  .overlay.show{display:flex}
+  .sheet{background:var(--card);width:100%;max-width:560px;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));border:1px solid var(--line);border-bottom:0;max-height:90vh;overflow:auto}
+  .opt{display:flex;gap:8px;margin:8px 0}
+  .opt button{flex:1;background:var(--card2);border:1px solid var(--line);color:var(--text);border-radius:12px;padding:12px 8px;font-weight:700;font-size:14px}
+  .opt button.sel{background:var(--accent);color:#06121f;border-color:var(--accent)}
+  .opt button.sel.warnsel{background:var(--warn);color:#241a06;border-color:var(--warn)}
+  .opt button.sel.badsel{background:var(--bad);color:#2a0a0a;border-color:var(--bad)}
+  .qlabel{font-weight:800;margin:14px 0 4px}
+
+  .hist{border-left:3px solid var(--accent);padding:10px 12px;background:var(--card);border-radius:0 12px 12px 0;margin-bottom:10px}
+  .hide{display:none}
+  a{color:var(--accent)}
+  .stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+  .stat .big{font-size:22px;font-weight:800}
+  .stat .lab{font-size:11px;color:var(--muted);margin-top:2px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="h-title">🏋️ My Fitness Coach</div>
+  <div class="h-sub" id="hsub">Stamina &amp; travel-readiness · offline</div>
+</header>
+
+<div class="wrap">
+  <!-- ===== TODAY VIEW ===== -->
+  <section id="view-today">
+    <div class="card" id="todayCard"></div>
+
+    <div class="modetoggle" id="modeToggle">
+      <button data-mode="offshore" id="mOff">🛢️ Offshore (rig)</button>
+      <button data-mode="home" id="mHome">🏠 Home</button>
+    </div>
+
+    <h2 id="sessHdr">Today's options</h2>
+    <div id="sessionList"></div>
+
+    <div class="coachmsg" id="coachToday" style="margin-top:6px"></div>
+  </section>
+
+  <!-- ===== SESSION VIEW ===== -->
+  <section id="view-session" class="hide">
+    <div class="between" style="margin-bottom:6px">
+      <button class="btn ghost sm" id="backBtn">‹ Back</button>
+      <span class="pill acc" id="sessPhase"></span>
+    </div>
+    <h2 id="sessTitle" style="margin-top:6px"></h2>
+    <div class="card small muted" id="sessIntro"></div>
+    <div id="exList"></div>
+    <button class="btn green" id="finishBtn" style="margin:6px 0 4px">✓ Finish &amp; Save Session</button>
+    <p class="tiny muted" style="text-align:center">Your log saves on this phone — no internet needed.</p>
+  </section>
+
+  <!-- ===== PROGRESS VIEW ===== -->
+  <section id="view-progress" class="hide">
+    <div class="card">
+      <div class="between"><div style="font-weight:800;font-size:16px">🎯 Travel-Readiness</div><span class="pill grn" id="daysLeft"></span></div>
+      <div class="ring" style="margin-top:12px">
+        <svg class="ringsvg" viewBox="0 0 36 36">
+          <path d="M18 2.5a15.5 15.5 0 110 31 15.5 15.5 0 010-31" fill="none" stroke="#2a323d" stroke-width="3"/>
+          <path id="ringFill" d="M18 2.5a15.5 15.5 0 110 31 15.5 15.5 0 010-31" fill="none" stroke="#46d39a" stroke-width="3" stroke-linecap="round" stroke-dasharray="97" stroke-dashoffset="97"/>
+        </svg>
+        <div><div class="num"><span id="readyScore">0</span><span class="muted" style="font-size:14px">/100</span></div>
+        <div class="small muted" id="readyTxt"></div></div>
+      </div>
+    </div>
+    <h2>This week</h2>
+    <div class="row" style="margin-bottom:10px">
+      <div class="stat"><div class="big" id="stSess">0</div><div class="lab">Sessions</div></div>
+      <div class="stat"><div class="big" id="stCardio">0</div><div class="lab">Cardio min</div></div>
+      <div class="stat"><div class="big" id="stRpe">–</div><div class="lab">Avg RPE</div></div>
+    </div>
+    <div class="row" style="margin-bottom:10px">
+      <div class="stat"><div class="big" id="stBest">0</div><div class="lab">Best cardio (min)</div></div>
+      <div class="stat"><div class="big" id="stIncl">0</div><div class="lab">Best incline walk</div></div>
+      <div class="stat"><div class="big" id="stStr">0</div><div class="lab">Strength days</div></div>
+    </div>
+    <h2>Body weight</h2>
+    <div class="card">
+      <div class="logrow">
+        <div class="fld"><label>Log today (kg)</label><input id="bwInput" type="number" inputmode="decimal" placeholder="e.g. 99.5"/></div>
+        <button class="btn green sm" id="bwSave" style="align-self:flex-end">Save</button>
+      </div>
+      <div id="bwList" class="small muted" style="margin-top:8px"></div>
+    </div>
+    <h2>Coach</h2>
+    <div class="coachmsg" id="coachProg"></div>
+  </section>
+
+  <!-- ===== HISTORY VIEW ===== -->
+  <section id="view-history" class="hide">
+    <h2>Session history</h2>
+    <div id="histList"></div>
+    <button class="btn ghost" id="exportBtn">⬇️ Export / back up my log</button>
+    <button class="btn ghost" id="wipeBtn" style="margin-top:8px;color:#ff8585">Erase all data</button>
+  </section>
+
+  <!-- ===== HELP VIEW ===== -->
+  <section id="view-help" class="hide">
+    <h2>Put it on your iPhone</h2>
+    <div class="card small">
+      <p style="margin-top:0"><b>Important:</b> iPhone only offers <b>“Add to Home Screen”</b> when a page is opened in <b>Safari from a web link</b> — not when opened from the Files app. Two ways to get the app icon:</p>
+      <p style="margin:8px 0 2px"><b>A) Quick host (one-time, on home Wi-Fi):</b></p>
+      <ol style="padding-left:18px;margin-top:4px">
+        <li>On a computer, go to <b>app.netlify.com/drop</b></li>
+        <li>Drag this file in → you get a web link (URL).</li>
+        <li>Open that link in <b>Safari</b> on your iPhone.</li>
+        <li>Share (□↑) → <b>Add to Home Screen</b> → Add. Now it works offline.</li>
+      </ol>
+      <p style="margin:10px 0 2px"><b>B) No hosting:</b> just open the file from the Files app each time. It still runs fully offline and saves your log — it just won’t have a home-screen icon.</p>
+    </div>
+    <h2>Your plan in one line</h2>
+    <div class="card small">
+      Rig weeks = strength build + treadmill/elliptical. Home weeks = elliptical stamina + floor bodyweight. RPE (effort 1–10) is your guide, not heart rate. No running yet. No ego lifting. Stamina first → strength supports it → weight loss after the holiday.
+    </div>
+    <h2>RPE — how hard?</h2>
+    <div class="card small">
+      <b>4</b> = easy, talk normally · <b>5</b> = moderate, breathing deeper · <b>6</b> = working, short sentences · <b>7</b> = hard (later weeks only). Muscle burn = OK. <b>Sharp pain = stop.</b>
+    </div>
+    <h2>Settings</h2>
+    <div class="card">
+      <div class="logrow">
+        <div class="fld"><label>Holiday start date</label><input id="holInput" type="date"/></div>
+        <button class="btn green sm" id="holSave" style="align-self:flex-end">Save</button>
+      </div>
+    </div>
+    <div class="card tiny muted">
+      Not medical advice. You confirmed no injuries or medical conditions. Stop and seek help for chest pain, dizziness, fainting, unusual breathlessness, or sharp joint pain.
+    </div>
+  </section>
+</div>
+
+<nav class="bottom">
+  <button data-view="today" class="on"><span class="ic">📅</span>Today</button>
+  <button data-view="progress"><span class="ic">🎯</span>Progress</button>
+  <button data-view="history"><span class="ic">📒</span>History</button>
+  <button data-view="help"><span class="ic">❓</span>Help</button>
+</nav>
+
+<!-- readiness modal -->
+<div class="overlay" id="readyModal">
+  <div class="sheet">
+    <div style="font-weight:800;font-size:18px">Quick check before we start</div>
+    <div class="small muted">30 seconds. It keeps you training smart, not just hard.</div>
+    <div class="qlabel">😴 How was your sleep?</div>
+    <div class="opt" id="qSleep">
+      <button data-v="good">Good</button><button data-v="poor">Poor</button><button data-v="bad" data-bad="1">Very poor</button>
+    </div>
+    <div class="qlabel">⚡ Energy today?</div>
+    <div class="opt" id="qEnergy">
+      <button data-v="good">Good</button><button data-v="med">Medium</button><button data-v="low" data-bad="1">Low</button>
+    </div>
+    <div class="qlabel">🩹 Any pain?</div>
+    <div class="opt" id="qPain">
+      <button data-v="none">None</button><button data-v="sore" data-warn="1">Muscle sore</button><button data-v="sharp" data-stop="1">Sharp / joint</button>
+    </div>
+    <div id="readyVerdict" class="small" style="margin:14px 0 4px;min-height:18px"></div>
+    <button class="btn primary" id="startSessBtn" style="margin-top:6px">Start session</button>
+    <button class="btn ghost" id="cancelReady" style="margin-top:8px">Cancel</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ============== ANIMATIONS — articulated 2-pose figures (offline SVG) ============== */
+/* Each exercise morphs smoothly between its real START and END position. */
+function P(s){return s;}
+function lerpLimb(a,b,dur){
+  return '<polyline points="'+a+'"><animate attributeName="points" dur="'+dur+'s" repeatCount="indefinite" '+
+    'calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1" values="'+a+';'+b+';'+a+'"/></polyline>';
+}
+function headEl(a,b,dur){
+  function an(attr,v0,v1){return '<animate attributeName="'+attr+'" dur="'+dur+'s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1" values="'+v0+';'+v1+';'+v0+'"/>';}
+  return '<circle class="head" r="9" cx="'+a[0]+'" cy="'+a[1]+'">'+an("cx",a[0],b[0])+an("cy",a[1],b[1])+'</circle>';
+}
+function build(A,B,dur){
+  dur=dur||1.9;
+  return '<svg class="exsvg" viewBox="0 0 120 130" preserveAspectRatio="xMidYMid meet">'+
+    '<line class="grd" x1="12" y1="122" x2="108" y2="122"/>'+
+    headEl(A.head,B.head,dur)+
+    lerpLimb(A.torso,B.torso,dur)+lerpLimb(A.aL,B.aL,dur)+lerpLimb(A.aR,B.aR,dur)+
+    lerpLimb(A.lL,B.lL,dur)+lerpLimb(A.lR,B.lR,dur)+'</svg>';
+}
+/* poses: head[x,y]; torso/arm/leg = "x1,y1 x2,y2 x3,y3" (joint chains) */
+const ST={head:[60,24],torso:"60,33 60,80",aL:"60,43 50,58 46,74",aR:"60,43 70,58 74,74",lL:"60,80 54,100 52,120",lR:"60,80 66,100 68,120"};
+const SQUAT_B={head:[60,42],torso:"60,51 60,90",aL:"60,59 50,62 40,60",aR:"60,59 70,62 80,60",lL:"60,90 44,103 53,120",lR:"60,90 76,103 67,120"};
+const HINGE_B={head:[38,40],torso:"43,46 62,82",aL:"50,53 48,67 47,81",aR:"54,54 56,68 55,82",lL:"62,82 56,101 54,120",lR:"62,82 66,101 64,120"};
+const BENCH_A={head:[26,72],torso:"34,74 90,74",aL:"42,73 44,58 56,56",aR:"42,75 46,60 58,60",lL:"90,74 100,90 100,108",lR:"90,74 108,90 108,108"};
+const BENCH_B={head:[26,72],torso:"34,74 90,74",aL:"42,73 48,54 58,38",aR:"42,75 50,56 60,42",lL:"90,74 100,90 100,108",lR:"90,74 108,90 108,108"};
+const PUSH_A={head:[24,86],torso:"32,88 96,98",aL:"38,88 36,102 32,112",aR:"40,88 38,102 34,112",lL:"96,98 106,108 112,114",lR:"96,98 106,109 112,115"};
+const PUSH_B={head:[22,76],torso:"30,78 96,92",aL:"38,78 38,96 36,112",aR:"40,78 40,96 38,112",lL:"96,92 106,104 112,114",lR:"96,92 106,105 112,115"};
+const PV_A={head:[60,24],torso:"60,33 60,80",aL:"60,43 48,42 50,28",aR:"60,43 72,42 70,28",lL:"60,80 54,100 52,120",lR:"60,80 66,100 68,120"};
+const PV_B={head:[60,24],torso:"60,33 60,80",aL:"60,43 52,28 50,12",aR:"60,43 68,28 70,12",lL:"60,80 54,100 52,120",lR:"60,80 66,100 68,120"};
+const PULLV_A={head:[60,30],torso:"60,39 60,82",aL:"60,48 50,30 46,16",aR:"60,48 70,30 74,16",lL:"60,82 54,101 52,120",lR:"60,82 66,101 68,120"};
+const PULLV_B={head:[60,30],torso:"60,39 60,82",aL:"60,48 44,56 56,50",aR:"60,48 76,56 64,50",lL:"60,82 54,101 52,120",lR:"60,82 66,101 68,120"};
+const PULLH_A={head:[60,28],torso:"60,37 60,80",aL:"60,47 78,54 94,56",aR:"60,47 78,60 94,64",lL:"60,80 54,100 52,120",lR:"60,80 66,100 68,120"};
+const PULLH_B={head:[60,28],torso:"60,37 60,80",aL:"60,47 48,56 52,66",aR:"60,47 72,56 68,66",lL:"60,80 54,100 52,120",lR:"60,80 66,100 68,120"};
+const LEGEXT_A={head:[34,26],torso:"34,35 34,72",aL:"34,45 26,58 24,70",aR:"34,45 44,58 46,70",lL:"34,72 68,72 68,104",lR:"38,72 72,72 72,104"};
+const LEGEXT_B={head:[34,26],torso:"34,35 34,72",aL:"34,45 26,58 24,70",aR:"34,45 44,58 46,70",lL:"34,72 68,72 96,64",lR:"38,72 72,72 100,68"};
+const LEGC_A={head:[60,24],torso:"60,33 60,80",aL:"60,43 50,58 46,74",aR:"60,43 70,58 74,74",lL:"60,80 60,100 60,120",lR:"60,80 66,100 68,120"};
+const LEGC_B={head:[60,24],torso:"60,33 60,80",aL:"60,43 50,58 46,74",aR:"60,43 70,58 74,74",lL:"60,80 62,100 84,94",lR:"60,80 66,100 68,120"};
+const CARRY_A={head:[60,24],torso:"60,33 60,80",aL:"60,43 57,60 56,78",aR:"60,43 63,60 64,78",lL:"60,80 52,100 50,120",lR:"60,80 68,98 70,116"};
+const CARRY_B={head:[60,22],torso:"60,31 60,78",aL:"60,41 57,58 56,76",aR:"60,41 63,58 64,76",lL:"60,78 68,98 70,116",lR:"60,78 52,100 50,120"};
+const CALF_B={head:[60,16],torso:"60,25 60,72",aL:"60,35 50,50 46,66",aR:"60,35 70,50 74,66",lL:"60,72 55,93 53,112",lR:"60,72 65,93 67,112"};
+const BRIDGE_A={head:[24,98],torso:"30,98 58,98",aL:"34,98 44,100 52,100",aR:"34,98 44,100 52,100",lL:"58,98 80,86 84,106",lR:"58,98 80,88 88,106"};
+const BRIDGE_B={head:[24,98],torso:"30,98 58,82",aL:"34,98 44,100 52,100",aR:"34,98 44,100 52,100",lL:"58,82 80,84 84,106",lR:"58,82 80,86 88,106"};
+const PLANK_A={head:[22,82],torso:"30,84 68,92",aL:"32,84 28,100 24,110",aR:"36,84 32,100 28,110",lL:"68,92 92,102 106,110",lR:"68,92 92,103 106,111"};
+const PLANK_B={head:[22,80],torso:"30,82 68,90",aL:"32,82 28,98 24,108",aR:"36,82 32,98 28,108",lL:"68,90 92,100 106,108",lR:"68,90 92,101 106,109"};
+const CRUNCH_A={head:[26,92],torso:"34,93 68,93",aL:"40,93 36,86 42,80",aR:"42,93 46,86 52,80",lL:"68,93 84,78 84,100",lR:"68,93 88,78 88,100"};
+const CRUNCH_B={head:[40,76],torso:"46,79 68,93",aL:"50,82 50,75 58,72",aR:"52,82 58,76 64,74",lL:"68,93 84,78 84,100",lR:"68,93 88,78 88,100"};
+const CORE_A={head:[24,90],torso:"32,91 64,91",aL:"40,91 40,76 40,62",aR:"42,91 42,76 42,62",lL:"64,91 78,76 80,60",lR:"64,91 80,78 82,62"};
+const CORE_B={head:[24,90],torso:"32,91 64,91",aL:"40,91 34,78 30,68",aR:"42,91 44,74 46,60",lL:"64,91 86,82 102,78",lR:"64,91 78,72 78,58"};
+const CARD_A={head:[60,22],torso:"60,31 60,78",aL:"60,40 52,52 48,64",aR:"60,40 66,54 70,68",lL:"60,78 50,98 46,118",lR:"60,78 68,96 72,114"};
+const CARD_B={head:[60,22],torso:"60,31 60,78",aL:"60,40 68,52 72,64",aR:"60,40 54,54 50,68",lL:"60,78 68,96 72,114",lR:"60,78 50,98 46,118"};
+
+const FIG={
+  squat:build(ST,SQUAT_B), hinge:build(ST,HINGE_B), pressH:build(BENCH_A,BENCH_B),
+  pushup:build(PUSH_A,PUSH_B), pressV:build(PV_A,PV_B), pullV:build(PULLV_A,PULLV_B),
+  pullH:build(PULLH_A,PULLH_B), legext:build(LEGEXT_A,LEGEXT_B), legcurl:build(LEGC_A,LEGC_B),
+  carry:build(CARRY_A,CARRY_B,1.0), calf:build(ST,CALF_B), bridge:build(BRIDGE_A,BRIDGE_B),
+  plank:build(PLANK_A,PLANK_B,3), crunch:build(CRUNCH_A,CRUNCH_B), core:build(CORE_A,CORE_B),
+  cardio:build(CARD_A,CARD_B,1.0)
+};
+
+/* ============== EXERCISE LIBRARY ============== */
+const EX = {
+  goblet_squat:{n:"Goblet Squat",a:"squat",cue:["Hold one dumbbell at your chest, feet shoulder-width.","Brace your stomach, push hips back, sit down under control.","Knees track over toes; push through the whole foot to stand."],v:"goblet squat form"},
+  db_bench:{n:"Dumbbell Bench Press",a:"pressH",cue:["Lie back, dumbbells over chest, feet flat.","Lower slowly, elbows ~45° from body, to chest level.","Press up smoothly — don't bounce or clash the bells."],v:"dumbbell bench press form"},
+  cable_row:{n:"Seated Cable Row",a:"pullH",cue:["Sit tall, slight chest up, arms extended.","Pull handle to your lower ribs, squeeze shoulder blades.","Return slowly — don't yank with the lower back."],v:"seated cable row form"},
+  db_rdl:{n:"Dumbbell Romanian Deadlift",a:"hinge",cue:["Dumbbells in front of thighs, knees slightly bent.","Push hips back, slide bells down close to legs.","Stop at hamstring stretch, drive hips forward to stand."],v:"dumbbell romanian deadlift form"},
+  pallof:{n:"Cable Pallof Press",a:"core",cue:["Stand side-on to a chest-height cable, handle at chest.","Press straight out and resist the pull twisting you.","Keep hips and shoulders square; breathe."],v:"pallof press"},
+  lat_pulldown:{n:"Lat Pulldown",a:"pullV",cue:["Grip just wider than shoulders, sit tall.","Pull elbows down, bar to upper chest — never behind neck.","Return slowly under control, keep shoulders down."],v:"lat pulldown form"},
+  db_shoulder_press:{n:"Dumbbell Shoulder Press",a:"pressV",cue:["Seated, dumbbells at shoulders, core braced.","Press overhead, stop just before locking out.","Don't arch your lower back — keep ribs down."],v:"dumbbell shoulder press form"},
+  leg_ext:{n:"Leg Extension",a:"legext",cue:["Back on pad, pad above ankles.","Lift until almost straight, brief pause — don't snap the knee.","Lower slowly, control every rep."],v:"leg extension machine form"},
+  leg_curl:{n:"Leg Curl",a:"legcurl",cue:["Pad on lower calf, hips stable.","Curl heels toward you, squeeze hamstrings.","Return slowly, no swinging."],v:"leg curl machine form"},
+  step_up:{n:"Dumbbell Step-Up",a:"squat",cue:["Low, stable bench. Whole foot on top.","Drive through the top foot to stand tall.","Control the way down. Finish one side, then switch."],v:"dumbbell step up form"},
+  farmer_carry:{n:"Farmer Carry",a:"carry",cue:["Hold dumbbells at your sides, stand tall.","Walk slow, chest up, don't lean side to side.","Great for luggage-carrying & core. Stop before grip fails."],v:"farmer carry exercise"},
+  calf_raise:{n:"Standing Calf Raise",a:"calf",cue:["Dumbbells at sides, balls of feet on floor/step.","Rise onto toes as high as you can, pause.","Lower slowly for a full stretch."],v:"standing calf raise form"},
+  /* home bodyweight */
+  pushup:{n:"Push-Up (scaled)",a:"pushup",cue:["START EASY: hands on a counter/wall, not the floor.","Body in a straight line, brace your stomach.","Lower with control, push away. Drop to knees if form breaks."],v:"incline push up beginner"},
+  bw_squat:{n:"Bodyweight Squat",a:"squat",cue:["Feet shoulder-width, arms out for balance.","Hips back, sit down as far as comfortable.","Push through the whole foot to stand tall."],v:"bodyweight squat form"},
+  glute_bridge:{n:"Glute Bridge",a:"bridge",cue:["Lie on your back, knees bent, feet flat.","Push hips up, squeeze your glutes at the top.","Lower slowly. Don't over-arch the back."],v:"glute bridge form"},
+  plank:{n:"Plank",a:"plank",cue:["Forearms down, body in a straight line.","Squeeze glutes and stomach, don't let hips sag.","Breathe slowly. Stop when form breaks, not before."],v:"forearm plank form"},
+  dead_bug:{n:"Dead Bug",a:"core",cue:["On your back, arms up, knees bent at 90°.","Lower opposite arm & leg slowly, back stays flat.","Return and switch. Slow and controlled."],v:"dead bug exercise"},
+  bird_dog:{n:"Bird Dog",a:"core",cue:["On hands and knees, back flat.","Extend opposite arm and leg, stay level.","Pause, return, switch. No rotating the hips."],v:"bird dog exercise"},
+  crunch:{n:"Crunch",a:"crunch",cue:["On your back, knees bent.","Curl shoulders up, chin off chest — don't yank the neck.","Lower slowly, keep tension on the abs."],v:"crunch form"},
+  /* cardio */
+  treadmill:{n:"Treadmill Walk",a:"cardio",cue:["Use the handle heart-rate sensor as a rough guide only.","Go by effort (RPE). No running yet.","Add incline before you add speed."],v:"treadmill incline walking technique"},
+  elliptical:{n:"Elliptical / Cross-Trainer",a:"cardio",cue:["Stand tall, light grip, smooth strides.","Use resistance to reach the target effort.","Lowest impact option — kind on knees at your weight."],v:"elliptical machine proper form"}
+};
+
+/* prescriptions: kind 'str'(strength) 'card'(cardio) 'hold'(time) */
+function ex(id,opt){return Object.assign({id:id},opt);}
+const SESSIONS = {
+  offshore:[
+    {id:"off_fbA",emoji:"💪",name:"Full Body A",sub:"Strength + short cardio",
+     intro:"Controlled and clean. If legs shake or breathing runs away, it was too heavy.",
+     items:[
+       ex("treadmill",{kind:"card",presc:"Warm-up · 5 min easy",dur:5,rpe:4}),
+       ex("goblet_squat",{kind:"str",sets:3,reps:"10–12",rest:"75s",rpe:5}),
+       ex("db_bench",{kind:"str",sets:3,reps:"10",rest:"75s",rpe:5}),
+       ex("cable_row",{kind:"str",sets:3,reps:"12",rest:"60s",rpe:5}),
+       ex("db_rdl",{kind:"str",sets:3,reps:"10",rest:"75s",rpe:5}),
+       ex("pallof",{kind:"str",sets:2,reps:"10 / side",rest:"45s",rpe:5}),
+       ex("elliptical",{kind:"card",presc:"Finisher · 8–10 min",dur:9,rpe:5})
+     ]},
+    {id:"off_card",emoji:"🫁",name:"Cardio Base",sub:"Build the engine + core",
+     intro:"The goal is not suffering — it's stamina. Keep it steady.",
+     items:[
+       ex("treadmill",{kind:"card",presc:"Steady walk · 20–30 min",dur:22,rpe:5}),
+       ex("dead_bug",{kind:"str",sets:2,reps:"8 / side",rest:"30s",rpe:5}),
+       ex("plank",{kind:"hold",sets:2,reps:"25 sec",rest:"45s",rpe:5})
+     ]},
+    {id:"off_fbB",emoji:"🦵",name:"Full Body B + Walk",sub:"Legs, back, incline walking",
+     intro:"This is your travel/hiking session. Finish with the incline walk.",
+     items:[
+       ex("elliptical",{kind:"card",presc:"Warm-up · 5 min easy",dur:5,rpe:4}),
+       ex("leg_ext",{kind:"str",sets:3,reps:"12",rest:"60s",rpe:5}),
+       ex("lat_pulldown",{kind:"str",sets:3,reps:"12",rest:"60s",rpe:5}),
+       ex("db_shoulder_press",{kind:"str",sets:3,reps:"10",rest:"60s",rpe:5}),
+       ex("step_up",{kind:"str",sets:3,reps:"8–10 / side",rest:"60s",rpe:5}),
+       ex("leg_curl",{kind:"str",sets:2,reps:"12",rest:"60s",rpe:5}),
+       ex("treadmill",{kind:"card",presc:"Incline walk · 10–15 min · incline 3–6%",dur:12,rpe:6,incline:true})
+     ]},
+    {id:"off_easy",emoji:"🧘",name:"Easy Cardio (optional)",sub:"Recovery + mobility",
+     intro:"Should leave you feeling better, not destroyed.",
+     items:[
+       ex("elliptical",{kind:"card",presc:"Easy · 20–25 min",dur:22,rpe:4}),
+       ex("farmer_carry",{kind:"str",sets:3,reps:"30–40 sec",rest:"60s",rpe:5})
+     ]}
+  ],
+  home:[
+    {id:"hm_base",emoji:"🫁",name:"Elliptical Base",sub:"Steady stamina + core",
+     intro:"Home week = build the engine. Smooth and steady on the elliptical.",
+     items:[
+       ex("elliptical",{kind:"card",presc:"Steady · 25–35 min",dur:28,rpe:5}),
+       ex("plank",{kind:"hold",sets:2,reps:"25 sec",rest:"45s",rpe:5}),
+       ex("dead_bug",{kind:"str",sets:2,reps:"8 / side",rest:"30s",rpe:5})
+     ]},
+    {id:"hm_int",emoji:"⚡",name:"Elliptical Intervals",sub:"Beginner-safe intervals",
+     intro:"After your warm-up: 2 min normal / 1 min faster, repeat. No all-out sprints.",
+     items:[
+       ex("elliptical",{kind:"card",presc:"Warm-up · 5 min easy",dur:5,rpe:4}),
+       ex("elliptical",{kind:"card",presc:"Intervals · 2 min easy / 1 min harder × 6 (18 min)",dur:18,rpe:6}),
+       ex("elliptical",{kind:"card",presc:"Cool-down · 5 min easy",dur:5,rpe:3})
+     ]},
+    {id:"hm_bw",emoji:"🤸",name:"Bodyweight Strength",sub:"Floor work — no equipment",
+     intro:"Hold your strength on home weeks. Start on the easier version of each move.",
+     items:[
+       ex("elliptical",{kind:"card",presc:"Warm-up · 5 min easy",dur:5,rpe:4}),
+       ex("bw_squat",{kind:"str",sets:3,reps:"12–15",rest:"60s",rpe:5}),
+       ex("pushup",{kind:"str",sets:3,reps:"8–12",rest:"60s",rpe:5}),
+       ex("glute_bridge",{kind:"str",sets:3,reps:"12–15",rest:"45s",rpe:5}),
+       ex("bird_dog",{kind:"str",sets:2,reps:"8 / side",rest:"45s",rpe:5}),
+       ex("plank",{kind:"hold",sets:3,reps:"25–30 sec",rest:"45s",rpe:5})
+     ]},
+    {id:"hm_rec",emoji:"🧘",name:"Recovery Cardio",sub:"Easy + stretch",
+     intro:"Light day. Feel better afterwards, not wrecked.",
+     items:[
+       ex("elliptical",{kind:"card",presc:"Easy · 20–25 min",dur:22,rpe:4}),
+       ex("crunch",{kind:"str",sets:2,reps:"12",rest:"30s",rpe:5})
+     ]}
+  ]
+};
+
+/* ============== STATE ============== */
+const LS={get:(k,d)=>{try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
+let logs = LS.get("mfc_logs",[]);
+let bw   = LS.get("mfc_bw",[]);
+let settings = LS.get("mfc_settings",{holiday:"2026-08-01",mode:null});
+let curMode = settings.mode || "offshore";
+let curSession=null, readiness={sleep:"good",energy:"good",pain:"none"};
+
+/* ============== PHASE (rotation calendar) ============== */
+function dnum(d){return Math.floor(new Date(d).setHours(0,0,0,0)/864e5);}
+function phaseFor(date){
+  const t=dnum(date);
+  const R=(a,b)=>({a:dnum(a),b:dnum(b)});
+  const blocks=[
+    {r:R("2026-01-01","2026-06-22"),k:"Reawaken",m:"home",note:"Ease back in. Easy elliptical + light core. Build the habit, protect the joints."},
+    {r:R("2026-06-23","2026-07-06"),k:"Foundation",m:"offshore",note:"Strength starts. Learn the moves, keep effort moderate (RPE 5). 2–3 sets."},
+    {r:R("2026-07-07","2026-07-13"),k:"Stamina Push",m:"home",note:"Home week — longer elliptical + first intervals. Strength holds via bodyweight."},
+    {r:R("2026-07-14","2026-07-27"),k:"Travel Prep",m:"offshore",note:"Peak block. Push to 3 sets, RPE 6, longer incline walks. This is the one that counts."},
+    {r:R("2026-07-28","2026-12-31"),k:"Taper / Holiday",m:"home",note:"Stay loose, arrive fresh. Easy cardio only — don't get sore right before travel."}
+  ];
+  for(const b of blocks){if(t>=b.r.a&&t<=b.r.b)return b;}
+  return blocks[blocks.length-1];
+}
+
+/* ============== RENDER: TODAY ============== */
+function fmtDate(d){return new Date(d).toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"});}
+function renderToday(){
+  const ph=phaseFor(new Date());
+  const hol=new Date(settings.holiday);
+  const days=Math.max(0,Math.ceil((hol-new Date())/864e5));
+  document.getElementById("todayCard").innerHTML=
+    '<div class="between"><div><div class="small muted">'+fmtDate(new Date())+'</div>'+
+    '<div style="font-size:19px;font-weight:800;margin-top:2px">Phase: '+ph.k+'</div></div>'+
+    '<span class="pill '+(ph.m==="offshore"?"acc":"grn")+'">'+(ph.m==="offshore"?"🛢️ Rig week":"🏠 Home week")+'</span></div>'+
+    '<div class="small" style="margin-top:10px;color:#cdd6e0">'+ph.note+'</div>'+
+    '<div class="between" style="margin-top:12px"><span class="pill wrn">✈️ '+days+' days to holiday</span>'+
+    '<span class="pill">Suggested: '+(ph.m==="offshore"?"Rig mode":"Home mode")+'</span></div>';
+  setMode(curMode,true);
+  const done=thisWeekLogs().length;
+  let msg;
+  if(done===0) msg="<b>New week.</b> Pick a session below and just start — momentum beats motivation.";
+  else if(done>=4) msg="<b>Four sessions in.</b> Excellent work this week. Keep form clean and don't chase extra intensity.";
+  else if(done>=2) msg="<b>"+done+" sessions logged.</b> You're on track. One or two more keeps you on pace for the holiday.";
+  else msg="<b>Good — 1 down.</b> Stay consistent. The plan only works if you keep showing up.";
+  document.getElementById("coachToday").innerHTML=msg;
+}
+function setMode(m,silent){
+  curMode=m; settings.mode=m; LS.set("mfc_settings",settings);
+  document.getElementById("mOff").className=(m==="offshore")?"on":"";
+  document.getElementById("mHome").className=(m==="home")?"on home":"";
+  document.getElementById("sessHdr").textContent=(m==="offshore")?"Rig sessions (full gym)":"Home sessions (elliptical + floor)";
+  renderSessionList();
+}
+function renderSessionList(){
+  const list=document.getElementById("sessionList"); list.innerHTML="";
+  SESSIONS[curMode].forEach(s=>{
+    const d=document.createElement("div"); d.className="card sess";
+    d.innerHTML='<div class="emoji">'+s.emoji+'</div><div class="ex-meta"><div class="nm">'+s.name+'</div><div class="small muted">'+s.sub+'</div></div><div class="chev">›</div>';
+    d.onclick=()=>openReady(s); list.appendChild(d);
+  });
+}
+
+/* ============== READINESS MODAL ============== */
+function openReady(s){
+  curSession=s; readiness={sleep:"good",energy:"good",pain:"none"};
+  document.querySelectorAll("#readyModal .opt button").forEach(b=>b.className="");
+  document.querySelectorAll('#qSleep button[data-v="good"],#qEnergy button[data-v="good"],#qPain button[data-v="none"]').forEach(b=>b.classList.add("sel"));
+  document.getElementById("readyVerdict").textContent="";
+  document.getElementById("startSessBtn").disabled=false;
+  document.getElementById("readyModal").classList.add("show");
+}
+function wireReadyGroup(gid,key){
+  document.querySelectorAll("#"+gid+" button").forEach(b=>{
+    b.onclick=()=>{
+      document.querySelectorAll("#"+gid+" button").forEach(x=>x.className="");
+      let cls="sel"; if(b.dataset.bad)cls+=" warnsel"; if(b.dataset.warn)cls+=" warnsel"; if(b.dataset.stop)cls+=" badsel";
+      b.className=cls; readiness[key]=b.dataset.v; updateVerdict();
+    };
+  });
+}
+function sessionMode(){
+  if(readiness.pain==="sharp") return "stop";
+  if(readiness.sleep==="bad"||readiness.energy==="low"||readiness.sleep==="poor") return "lite";
+  return "full";
+}
+function updateVerdict(){
+  const v=document.getElementById("readyVerdict"); const sb=document.getElementById("startSessBtn");
+  const m=sessionMode();
+  if(m==="stop"){v.innerHTML='<span style="color:#ff8585">⛔ Sharp/joint pain is not training. Skip today, rest, and reassess. If it persists, get it checked.</span>';sb.disabled=true;}
+  else if(m==="lite"){v.innerHTML='<span style="color:#ffb347">⚠️ Smart-training mode: a lighter version (fewer sets, easy cardio, no intervals). This is not failure — it\'s how you keep going.</span>';sb.disabled=false;}
+  else{v.innerHTML='<span style="color:#46d39a">✅ Good to go — full session.</span>';sb.disabled=false;}
+}
+
+/* ============== RENDER: SESSION ============== */
+function buildSession(){
+  const s=curSession, lite=(sessionMode()==="lite");
+  const ph=phaseFor(new Date());
+  document.getElementById("sessTitle").textContent=s.emoji+" "+s.name;
+  document.getElementById("sessPhase").textContent=ph.k+(lite?" · lite":"");
+  document.getElementById("sessIntro").innerHTML=(lite?"<b style='color:#ffb347'>Lighter session selected.</b> ":"")+s.intro;
+  const wrap=document.getElementById("exList"); wrap.innerHTML="";
+  s.items.forEach((it,idx)=>{
+    const e=EX[it.id];
+    let sets=it.sets, presc=it.presc;
+    if(lite){
+      if(it.kind==="str"||it.kind==="hold") sets=Math.min(sets||2,2);
+      if(it.kind==="card"){ presc=(presc||"").replace(/Intervals.*/,"Easy steady (no intervals)"); }
+    }
+    let prescTxt;
+    if(it.kind==="card") prescTxt=presc;
+    else if(it.kind==="hold") prescTxt=sets+" × "+it.reps+" · rest "+it.rest;
+    else prescTxt=sets+" sets × "+it.reps+" · rest "+it.rest;
+
+    let inputs="";
+    if(it.kind==="card"){
+      inputs='<div class="logrow">'+
+        '<div class="fld"><label>Minutes</label><input data-f="min" data-i="'+idx+'" type="number" inputmode="numeric" placeholder="'+(it.dur||"")+'"/></div>'+
+        (it.id==="treadmill"?'<div class="fld"><label>Speed</label><input data-f="speed" data-i="'+idx+'" type="number" inputmode="decimal" placeholder="3.0"/></div><div class="fld"><label>Incline %</label><input data-f="incline" data-i="'+idx+'" type="number" inputmode="numeric" placeholder="'+(it.incline?"4":"0")+'"/></div>':'<div class="fld"><label>Resistance</label><input data-f="speed" data-i="'+idx+'" type="number" inputmode="numeric" placeholder="lvl"/></div>')+
+        '<div class="fld"><label>RPE /10</label><input data-f="rpe" data-i="'+idx+'" type="number" inputmode="numeric" placeholder="'+it.rpe+'"/></div></div>';
+    } else if(it.kind==="hold"){
+      inputs='<div class="logrow"><div class="fld"><label>Best hold (sec)</label><input data-f="reps" data-i="'+idx+'" type="number" inputmode="numeric" placeholder="sec"/></div><div class="fld"><label>RPE /10</label><input data-f="rpe" data-i="'+idx+'" type="number" inputmode="numeric" placeholder="'+it.rpe+'"/></div></div>';
+    } else {
+      const wlbl=(curMode==="home")?"Reps done":"Weight (kg)";
+      inputs='<div class="logrow"><div class="fld"><label>'+wlbl+'</label><input data-f="weight" data-i="'+idx+'" type="number" inputmode="decimal" placeholder="'+(curMode==="home"?"reps":"kg")+'"/></div><div class="fld"><label>Sets done</label><input data-f="setsdone" data-i="'+idx+'" type="number" inputmode="numeric" placeholder="'+sets+'"/></div><div class="fld"><label>RPE /10</label><input data-f="rpe" data-i="'+idx+'" type="number" inputmode="numeric" placeholder="'+it.rpe+'"/></div></div>';
+    }
+    const last=lastValue(it.id);
+    const card=document.createElement("div"); card.className="ex";
+    card.innerHTML=
+      '<div class="ex-head">'+FIG[e.a]+
+        '<div class="ex-meta"><div class="ex-name">'+e.n+'</div>'+
+        '<div class="ex-presc">'+prescTxt+'</div>'+
+        (last?'<div class="ex-sub">Last time: '+last+'</div>':'')+'</div></div>'+
+      '<div class="ex-body">'+
+        '<details><summary>How to do it</summary><ul class="cues"><li>'+e.cue.join("</li><li>")+'</li></ul>'+
+        '<a class="vidbtn" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query='+encodeURIComponent(e.v)+'">▶ Watch video (needs internet)</a>'+
+        '</details>'+inputs+'</div>';
+    wrap.appendChild(card);
+  });
+  show("session");
+}
+function lastValue(id){
+  for(let i=logs.length-1;i>=0;i--){
+    const it=(logs[i].items||[]).find(x=>x.id===id);
+    if(it){
+      if(it.weight!=null&&it.weight!=="") return it.weight+(it.unit==="reps"?" reps":" kg")+(it.rpe?" · RPE "+it.rpe:"");
+      if(it.min) return it.min+" min"+(it.speed?" · "+it.speed:"")+(it.rpe?" · RPE "+it.rpe:"");
+      if(it.reps) return it.reps+(it.rpe?" · RPE "+it.rpe:"");
+    }
+  }
+  return "";
+}
+function saveSession(){
+  const items=[];
+  document.querySelectorAll("#exList .ex").forEach((card,idx)=>{
+    const it=curSession.items[idx]; const rec={id:it.id,kind:it.kind};
+    card.querySelectorAll("input[data-f]").forEach(inp=>{
+      const f=inp.dataset.f, val=inp.value.trim(); if(val==="")return;
+      if(f==="min")rec.min=+val; else if(f==="speed")rec.speed=val; else if(f==="incline")rec.incline=+val;
+      else if(f==="rpe")rec.rpe=+val; else if(f==="reps")rec.reps=val;
+      else if(f==="weight"){rec.weight=val;rec.unit=(curMode==="home")?"reps":"kg";}
+      else if(f==="setsdone")rec.sets=+val;
+    });
+    items.push(rec);
+  });
+  const ph=phaseFor(new Date());
+  logs.push({date:new Date().toISOString(),mode:curMode,session:curSession.name,phase:ph.k,readiness:Object.assign({},readiness),items:items});
+  LS.set("mfc_logs",logs);
+  const lite=sessionMode()==="lite";
+  let msg= lite? "Smart call taking the lighter session. That still counts — consistency beats punishment."
+        : "Logged. You did the work — that's what matters. Don't chase intensity, chase showing up.";
+  alert("✅ Saved!\n\n"+msg);
+  show("today"); renderToday(); switchNav("today");
+}
+
+/* ============== PROGRESS ============== */
+function weekStart(){const d=new Date();const day=(d.getDay()+6)%7;d.setHours(0,0,0,0);d.setDate(d.getDate()-day);return d;}
+function thisWeekLogs(){const ws=weekStart();return logs.filter(l=>new Date(l.date)>=ws);}
+function renderProgress(){
+  const wk=thisWeekLogs();
+  const cardioMin=wk.reduce((a,l)=>a+(l.items||[]).reduce((b,i)=>b+(i.min||0),0),0);
+  const rpes=[]; wk.forEach(l=>(l.items||[]).forEach(i=>{if(i.rpe)rpes.push(i.rpe)}));
+  const avgRpe=rpes.length?(rpes.reduce((a,b)=>a+b,0)/rpes.length).toFixed(1):"–";
+  let bestCardio=0,bestIncl=0;
+  logs.forEach(l=>{(l.items||[]).forEach(i=>{
+    if(i.min&&i.min>bestCardio)bestCardio=i.min;
+    if(i.incline&&i.min&&i.min>=8&&i.incline>=2)bestIncl=Math.max(bestIncl,i.min);
+  });});
+  let strDays=0;
+  wk.forEach(l=>{if((l.items||[]).some(i=>i.kind==="str"&&(i.weight||i.sets)))strDays++;});
+  document.getElementById("stSess").textContent=wk.length;
+  document.getElementById("stCardio").textContent=cardioMin;
+  document.getElementById("stRpe").textContent=avgRpe;
+  document.getElementById("stBest").textContent=bestCardio;
+  document.getElementById("stIncl").textContent=bestIncl;
+  document.getElementById("stStr").textContent=strDays;
+  let sc=0;
+  if(wk.length>=3)sc+=25; else sc+=Math.round(wk.length/3*25);
+  if(bestCardio>=30)sc+=25; else sc+=Math.round(Math.min(bestCardio,30)/30*25);
+  if(bestIncl>=15)sc+=20; else sc+=Math.round(Math.min(bestIncl,15)/15*20);
+  if(strDays>=2)sc+=20; else sc+=strDays*10;
+  if(avgRpe!=="–"&&+avgRpe<=6.5)sc+=10; else if(avgRpe!=="–")sc+=5;
+  sc=Math.min(100,sc);
+  document.getElementById("readyScore").textContent=sc;
+  document.getElementById("ringFill").style.strokeDashoffset=97-(97*sc/100);
+  const hol=new Date(settings.holiday);const days=Math.max(0,Math.ceil((hol-new Date())/864e5));
+  document.getElementById("daysLeft").textContent="✈️ "+days+" days left";
+  let txt = sc>=80?"Strong travel readiness 💪":sc>=60?"Good — keep it consistent":sc>=40?"Building — stay on it":"Just getting started";
+  document.getElementById("readyTxt").textContent=txt;
+  let cmsg = sc>=80? "<b>You're holiday-ready.</b> Walking all day, stairs, beach with the kids — you'll handle it. Hold the line to the finish."
+    : sc>=40? "<b>Coming along.</b> The biggest lever now is finishing 3+ sessions a week and pushing one cardio toward 30 minutes."
+    : "<b>Early days — that's fine.</b> Just bank sessions. Every logged workout moves this score up.";
+  document.getElementById("coachProg").innerHTML=cmsg;
+  const bl=document.getElementById("bwList");
+  bl.innerHTML = bw.length? bw.slice(-6).reverse().map(x=>fmtDate(x.d)+": <b>"+x.kg+" kg</b>").join("<br>") : "No entries yet.";
+}
+
+/* ============== HISTORY ============== */
+function renderHistory(){
+  const h=document.getElementById("histList");
+  if(!logs.length){h.innerHTML='<div class="card muted small">No sessions yet. Your logged workouts will show here.</div>';return;}
+  h.innerHTML="";
+  logs.slice().reverse().forEach(l=>{
+    const d=document.createElement("div");d.className="hist";
+    const det=(l.items||[]).filter(i=>i.weight||i.min||i.reps).map(i=>{
+      const e=EX[i.id]; let v=i.weight?(i.weight+(i.unit==="reps"?" reps":" kg")):i.min?(i.min+" min"):i.reps?(i.reps+(i.kind==="hold"?" sec":"")):"";
+      return e.n+" — "+v+(i.rpe?" (RPE "+i.rpe+")":"");
+    }).join("<br>");
+    d.innerHTML='<div class="between"><b>'+l.session+'</b><span class="tiny muted">'+fmtDate(l.date)+'</span></div>'+
+      '<div class="tiny muted">'+(l.mode==="offshore"?"🛢️ Rig":"🏠 Home")+' · '+l.phase+'</div>'+
+      (det?'<div class="small" style="margin-top:6px;color:#cdd6e0">'+det+'</div>':'');
+    h.appendChild(d);
+  });
+}
+
+/* ============== NAV / VIEWS ============== */
+function show(v){["today","session","progress","history","help"].forEach(x=>document.getElementById("view-"+x).classList.toggle("hide",x!==v));window.scrollTo(0,0);}
+function switchNav(v){document.querySelectorAll("nav.bottom button").forEach(b=>b.classList.toggle("on",b.dataset.view===v));}
+document.querySelectorAll("nav.bottom button").forEach(b=>{b.onclick=()=>{const v=b.dataset.view;switchNav(v);if(v==="today"){renderToday();}if(v==="progress")renderProgress();if(v==="history")renderHistory();show(v);};});
+
+/* ============== EVENTS ============== */
+document.getElementById("mOff").onclick=()=>setMode("offshore");
+document.getElementById("mHome").onclick=()=>setMode("home");
+document.getElementById("backBtn").onclick=()=>{show("today");switchNav("today");};
+document.getElementById("finishBtn").onclick=saveSession;
+document.getElementById("cancelReady").onclick=()=>document.getElementById("readyModal").classList.remove("show");
+document.getElementById("startSessBtn").onclick=()=>{document.getElementById("readyModal").classList.remove("show");buildSession();};
+wireReadyGroup("qSleep","sleep");wireReadyGroup("qEnergy","energy");wireReadyGroup("qPain","pain");
+document.getElementById("bwSave").onclick=()=>{const v=document.getElementById("bwInput").value.trim();if(!v)return;bw.push({d:new Date().toISOString(),kg:+v});LS.set("mfc_bw",bw);document.getElementById("bwInput").value="";renderProgress();};
+document.getElementById("holInput").value=settings.holiday;
+document.getElementById("holSave").onclick=()=>{const v=document.getElementById("holInput").value;if(v){settings.holiday=v;LS.set("mfc_settings",settings);alert("Holiday date saved.");renderToday();}};
+document.getElementById("exportBtn").onclick=()=>{
+  const data={exported:new Date().toISOString(),logs:logs,bodyweight:bw,settings:settings};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="my-fitness-log-"+new Date().toISOString().slice(0,10)+".json";a.click();
+};
+document.getElementById("wipeBtn").onclick=()=>{if(confirm("Erase ALL logged data on this device? This cannot be undone.")){localStorage.clear();logs=[];bw=[];settings={holiday:"2026-08-01",mode:"offshore"};renderToday();renderProgress();renderHistory();alert("Data erased.");}};
+
+/* ============== INIT ============== */
+renderToday();
+
+/* register service worker for offline use (only works when hosted via http/https) */
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{});});
+}
+</script>
+</body>
+</html>
