@@ -1,5 +1,5 @@
 /* My Fitness Coach — service worker (offline cache) */
-const CACHE = "mfc-v1";
+const CACHE = "mfc-v2";
 const ASSETS = [
   "./",
   "./index.html",
